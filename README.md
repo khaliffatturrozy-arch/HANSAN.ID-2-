@@ -1,4 +1,4 @@
-# HANSAN — F&B / Restaurant POS & Operational SaaS
+# HANSAN — F&B / Restaurant POS & Operational
 
 Production-oriented product foundation. Current sprint: **UI/UX +
 application structure + complete navigable role flows** (§Master).
