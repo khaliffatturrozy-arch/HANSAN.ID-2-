@@ -1,0 +1,23 @@
+@import "../styles/tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: var(--hansan-surface-soft);
+  --foreground: var(--hansan-ink);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-brand);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+

@@ -1,0 +1,77 @@
+/**
+ * HANSAN Design Tokens (CSS Custom Properties) — §11.
+ * Single source of truth for brand + elevation + spacing primitives.
+ * Tailwind theme in `tailwind.config.ts` mirrors these values.
+ * Components MUST consume these tokens, never hardcode brand hexes.
+ */
+
+:root {
+  /* Brand — ONLY place brand hexes live (with brand.ts + tailwind theme) */
+  --hansan-orange: #ff7a00;
+  --hansan-blue: #0029ff;
+  --hansan-ivory: #fff5d5;
+
+  /* Surfaces (light operational canvas) */
+  --hansan-surface: #eef1f6;
+  --hansan-surface-soft: #f7f9fc;
+  --hansan-surface-raised: #ffffff;
+  --hansan-ink: #1a2233;
+  --hansan-ink-muted: #5b6b85;
+  --hansan-line: #dde4ee;
+
+  /* Semantic UI (states only — NOT business data) */
+  --hansan-success: #12805c;
+  --hansan-warning: #b7791f;
+  --hansan-danger: #c2413a;
+  --hansan-info: #0029ff;
+
+  /* Neumorphic elevation — selective use per §10 */
+  --neu-raised: 8px 8px 16px rgba(163, 177, 198, 0.35),
+    -8px -8px 16px rgba(255, 255, 255, 0.9);
+  --neu-raised-sm: 4px 4px 8px rgba(163, 177, 198, 0.3),
+    -4px -4px 8px rgba(255, 255, 255, 0.9);
+  --neu-inset: inset 4px 4px 8px rgba(163, 177, 198, 0.35),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.9);
+  --neu-flat: 0 1px 2px rgba(26, 34, 51, 0.06);
+
+  /* Radius */
+  --radius-neu: 1rem;
+  --radius-sm: 0.5rem;
+  --radius-xs: 0.375rem;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-brand: "Glacial Indifference", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+
+  /* Interaction */
+  --transition-fast: 150ms ease;
+  --transition-base: 220ms ease;
+  --focus-ring: 0 0 0 3px rgba(0, 41, 255, 0.25);
+  --disabled-opacity: 0.5;
+
+  /* Shell dimensions (Phase 6 contracts) */
+  --shell-header-h: 4rem;
+  --shell-sidebar-w: 16.5rem;
+  --shell-sidebar-collapsed-w: 4.5rem;
+  --shell-content-max: 88rem;
+
+  /* Z-index */
+  --z-header: 40;
+  --z-sidebar: 30;
+  --z-drawer: 50;
+  --z-dialog: 60;
+  --z-toast: 70;
+  --z-tooltip: 80;
+}
+
+/* Skeleton shimmer — loading states only (no fake data) */
+@keyframes hansan-shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
