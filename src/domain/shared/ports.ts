@@ -84,6 +84,7 @@ export interface OrderPort {
   findById(id: string): Promise<OrderRecord | null>;
   save(order: OrderRecord): Promise<void>;
   listByOutlet(outletId: string, options?: { limit?: number; sinceIso?: string }): Promise<OrderRecord[]>;
+  listByTenant(tenantId: string, options?: { limit?: number; sinceIso?: string }): Promise<OrderRecord[]>;
   nextOrderNumber(outletId: string): Promise<string>;
 }
 
