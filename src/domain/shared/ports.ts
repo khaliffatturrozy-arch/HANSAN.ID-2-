@@ -55,6 +55,8 @@ export interface OrderLine {
   modifierIds: string[];
   station: "kitchen" | "bar";
   state: "active" | "cancelled";
+  /** KDS item-level preparation status (Phase A3). */
+  prepStatus?: "pending" | "preparing" | "ready";
   note?: string;
 }
 
