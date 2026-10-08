@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { FlowSteps } from "@/components/ui/flow-steps";
 import { usePosDraft, type OrderType } from "@/components/modules/pos/order-context";
 
-export const POS_FLOW = [
+const POS_FLOW = [
   { href: "/pos/order-type", label: "Type" },
   { href: "/pos/table", label: "Table" },
   { href: "/pos/menu", label: "Menu" },
