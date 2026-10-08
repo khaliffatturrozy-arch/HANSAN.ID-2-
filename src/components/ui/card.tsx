@@ -15,10 +15,12 @@ const PADDING_CLASS = {
 } as const;
 
 /**
- * Card primitive — raised for important surfaces, flat for dense content (§10).
+ * Card primitive — flat-first operational surfaces (§10 + design direction).
+ * raised: dialogs, login panel, floating summaries only.
+ * flat (default): bordered white surfaces for lists, tables, info sections.
  */
 export function Card({
-  elevation = "raised",
+  elevation = "flat",
   padding = "md",
   className = "",
   children,
@@ -27,7 +29,7 @@ export function Card({
   const elevationClass =
     elevation === "raised"
       ? "bg-hansan-surface-soft shadow-neu-raised"
-      : "bg-hansan-surface-raised shadow-neu-flat border border-hansan-line";
+      : "border border-hansan-line bg-hansan-surface-raised";
   return (
     <div
       className={`rounded-neu ${elevationClass} ${PADDING_CLASS[padding]} ${className}`.trim()}

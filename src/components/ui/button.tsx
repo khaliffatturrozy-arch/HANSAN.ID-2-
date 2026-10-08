@@ -12,10 +12,10 @@ export interface ButtonProps
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
   primary:
-    "bg-hansan-orange text-white shadow-neu-raised-sm hover:brightness-105",
+    "bg-hansan-orange text-white shadow-neu-raised-sm hover:brightness-105 active:brightness-95",
   secondary:
-    "bg-hansan-surface-soft text-hansan-ink shadow-neu-raised-sm hover:brightness-[1.02]",
-  ghost: "bg-transparent text-hansan-ink hover:bg-hansan-surface-soft",
+    "border border-hansan-line-strong bg-hansan-surface-raised text-hansan-ink hover:border-hansan-ink",
+  ghost: "bg-transparent text-hansan-ink hover:bg-hansan-surface-sunken",
   danger: "bg-hansan-danger text-white shadow-neu-raised-sm hover:brightness-105",
 };
 

@@ -20,7 +20,7 @@ export interface ErrorStateProps {
 /** Honest error surface — describes failure, offers retry (§22). */
 export function ErrorState({ title = "Something went wrong", description, onRetry, className = "" }: ErrorStateProps) {
   return (
-    <div role="alert" className={`flex flex-col items-center rounded-neu border border-hansan-danger/30 bg-hansan-surface-soft px-6 py-12 text-center ${className}`.trim()}>
+    <div role="alert" className={`flex flex-col items-center rounded-sm border border-hansan-danger/40 bg-hansan-surface-raised px-6 py-12 text-center ${className}`.trim()}>
       <span aria-hidden className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-hansan-danger/10 text-xl text-hansan-danger">
         !
       </span>
@@ -30,7 +30,7 @@ export function ErrorState({ title = "Something went wrong", description, onRetr
         <button
           type="button"
           onClick={onRetry}
-          className="mt-5 h-9 rounded-xl bg-hansan-surface-soft px-5 text-sm font-semibold text-hansan-ink shadow-neu-raised-sm transition hover:brightness-[1.03]"
+          className="mt-5 h-9 rounded-sm border border-hansan-line-strong bg-hansan-surface-raised px-5 text-sm font-bold text-hansan-ink transition hover:border-hansan-ink"
         >
           Retry
         </button>

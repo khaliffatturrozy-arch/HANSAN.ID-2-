@@ -32,7 +32,7 @@ export default function PosCartPage() {
         rowKey={(r) => r as unknown as string}
         emptyMessage="Cart is empty — no items added."
       />
-      <div className="mt-4 flex justify-end rounded-neu bg-hansan-surface-soft px-5 py-4 shadow-neu-raised-sm">
+      <div className="mt-4 flex justify-end rounded-sm border border-hansan-line bg-hansan-surface-raised px-5 py-4">
         <p className="text-sm text-hansan-ink-muted">
           Subtotal <span className="ml-6 font-bold text-hansan-ink">Rp 0</span>
         </p>

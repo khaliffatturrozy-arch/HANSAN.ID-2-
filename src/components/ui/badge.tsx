@@ -7,11 +7,11 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const TONE_CLASS: Record<BadgeTone, string> = {
-  neutral: "bg-hansan-surface text-hansan-ink-muted shadow-neu-inset",
-  info: "bg-hansan-blue/10 text-hansan-blue",
-  success: "bg-hansan-success/10 text-hansan-success",
-  warning: "bg-hansan-warning/10 text-hansan-warning",
-  danger: "bg-hansan-danger/10 text-hansan-danger",
+  neutral: "border border-hansan-line bg-hansan-surface-soft text-hansan-ink-muted",
+  info: "border border-hansan-blue/30 bg-hansan-blue/10 text-hansan-blue",
+  success: "border border-hansan-success/30 bg-hansan-success/10 text-hansan-success",
+  warning: "border border-hansan-warning/30 bg-hansan-warning/10 text-hansan-warning",
+  danger: "border border-hansan-danger/30 bg-hansan-danger/10 text-hansan-danger",
 };
 
 /** Status badge — UI states (e.g. order states), never business data itself. */

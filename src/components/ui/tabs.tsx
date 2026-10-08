@@ -37,7 +37,7 @@ export function Tabs({ label, items, value, onChange, className = "" }: TabsProp
       role="tablist"
       aria-label={label}
       onKeyDown={onKeyDown}
-      className={`inline-flex rounded-xl bg-hansan-surface-soft p-1 shadow-neu-inset ${className}`.trim()}
+      className={`inline-flex rounded-sm border border-hansan-line bg-hansan-surface-soft p-1 ${className}`.trim()}
     >
       {items.map((item) => {
         const selected = item.value === value;
@@ -49,8 +49,8 @@ export function Tabs({ label, items, value, onChange, className = "" }: TabsProp
             aria-selected={selected}
             disabled={item.disabled}
             onClick={() => onChange(item.value)}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition duration-fast focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
-              selected ? "bg-hansan-surface-raised text-hansan-ink shadow-neu-flat" : "text-hansan-ink-muted hover:text-hansan-ink"
+            className={`rounded-sm px-4 py-2 text-sm font-semibold transition duration-fast focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
+              selected ? "bg-hansan-ink text-hansan-ivory" : "text-hansan-ink-muted hover:text-hansan-ink"
             }`}
           >
             {item.label}

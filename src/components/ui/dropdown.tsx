@@ -47,7 +47,7 @@ export function Dropdown({ label, items, value, onChange, placeholder = "Selectâ
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-10 w-full items-center justify-between rounded-xl bg-hansan-surface-soft px-4 text-sm text-hansan-ink shadow-neu-inset focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring),var(--neu-inset)]"
+        className="flex h-10 w-full items-center justify-between rounded-sm border border-hansan-line bg-hansan-surface-raised px-4 text-sm text-hansan-ink focus-visible:outline-none focus-visible:border-hansan-blue focus-visible:[box-shadow:var(--focus-ring)]"
       >
         <span className={selected ? "" : "text-hansan-ink-muted"}>{selected?.label ?? placeholder}</span>
         <span aria-hidden className="text-hansan-ink-muted">â–¾</span>

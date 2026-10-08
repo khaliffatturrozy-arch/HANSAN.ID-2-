@@ -38,7 +38,7 @@ export function Drawer({ open, onClose, title, children, side = "right" }: Drawe
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`absolute top-0 flex h-full w-full max-w-md flex-col bg-hansan-surface-soft shadow-neu-raised ${side === "right" ? "right-0" : "left-0"}`}
+        className={`absolute top-0 flex h-full w-full max-w-md flex-col border-hansan-line bg-hansan-surface-raised shadow-neu-raised ${side === "right" ? "right-0 border-l" : "left-0 border-r"}`}
       >
         <div className="flex items-center justify-between border-b border-hansan-line p-4">
           <h2 id={titleId} className="text-base font-bold text-hansan-ink">

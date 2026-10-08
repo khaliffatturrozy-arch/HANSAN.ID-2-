@@ -84,7 +84,7 @@ export function computableProducible(
     }
   }
 
-  const finite = Number.isFinite(minUnits) ? minUnits : 0;
+  const finite = Number.isFinite(minUnits) ? Math.floor(minUnits) : 0;
   return { units: Math.floor(finite), limitingMaterialId: finite === 0 ? limiting : null, perIngredient };
 }
 

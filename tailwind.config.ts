@@ -18,9 +18,11 @@ const config: Config = {
           surface: "var(--hansan-surface)",
           "surface-soft": "var(--hansan-surface-soft)",
           "surface-raised": "var(--hansan-surface-raised)",
+          "surface-sunken": "var(--hansan-surface-sunken)",
           ink: "var(--hansan-ink)",
           "ink-muted": "var(--hansan-ink-muted)",
           line: "var(--hansan-line)",
+          "line-strong": "var(--hansan-line-strong)",
           success: "var(--hansan-success)",
           warning: "var(--hansan-warning)",
           danger: "var(--hansan-danger)",
@@ -42,10 +44,11 @@ const config: Config = {
         xs: "var(--radius-xs)",
       },
       boxShadow: {
-        // Modern Neumorphism + Minimalism + Premium SaaS (§10).
-        // Raised: cards / primary controls / nav surfaces.
-        // Inset: inputs / search / qty / selected controls.
-        // Flat: dense tables / info sections / content-heavy areas.
+        // Flat-first operational system (HANSAN-UI-UX-DESIGN-DIRECTION.md).
+        // raised-sm: primary buttons + active nav only.
+        // raised: dialogs, drawers, login panel, floating POS cart only.
+        // inset: text inputs / search / pressed states.
+        // flat: hairline rule for dense tables / lists.
         "neu-raised": "var(--neu-raised)",
         "neu-raised-sm": "var(--neu-raised-sm)",
         "neu-inset": "var(--neu-inset)",

@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Breadcrumb, type Crumb } from "@/components/ui/breadcrumb";
 import { PageHeader } from "@/components/ui/page-header";
-import { Card } from "@/components/ui/card";
 import { Badge, type BadgeTone } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 
@@ -59,15 +58,15 @@ export function ModulePage({
 
       {children}
 
-      <Card padding="md" className="mt-2">
-        <div className="flex flex-wrap items-center gap-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-hansan-ink-muted">
+      <div className="mt-2 rounded-sm border border-hansan-line bg-hansan-surface-raised">
+        <div className="flex flex-wrap items-center gap-3 border-b border-hansan-line px-5 py-3">
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-hansan-ink-muted">
             Current status
           </p>
           <Badge tone={status.tone ?? "neutral"}>{status.label}</Badge>
         </div>
-        <p className="mt-2 text-sm text-hansan-ink-muted">{status.detail}</p>
-      </Card>
+        <p className="px-5 py-3 text-sm leading-relaxed text-hansan-ink-muted">{status.detail}</p>
+      </div>
 
       <EmptyState
         className="mt-4"

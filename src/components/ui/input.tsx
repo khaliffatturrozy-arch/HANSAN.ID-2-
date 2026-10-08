@@ -20,7 +20,7 @@ export function Input({ label, error, hint, id, className = "", ...rest }: Input
         id={inputId}
         aria-invalid={Boolean(error) || undefined}
         aria-describedby={error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined}
-        className="h-10 w-full rounded-xl bg-hansan-surface-soft px-4 text-sm text-hansan-ink shadow-neu-inset transition duration-fast placeholder:text-hansan-ink-muted focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring),var(--neu-inset)] disabled:cursor-not-allowed disabled:opacity-50"
+        className="h-10 w-full rounded-sm border border-hansan-line bg-hansan-surface-raised px-4 text-sm text-hansan-ink transition duration-fast placeholder:text-hansan-ink-muted focus-visible:outline-none focus-visible:border-hansan-blue focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50"
         {...rest}
       />
       {error ? (

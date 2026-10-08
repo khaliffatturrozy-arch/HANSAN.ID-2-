@@ -28,7 +28,7 @@ export function Toast({ toasts, onDismiss }: ToastProps) {
         <div
           key={t.id}
           role="status"
-          className={`flex items-start justify-between gap-3 rounded-xl border-l-4 bg-hansan-surface-raised px-4 py-3 shadow-neu-raised ${TONE_CLASS[t.tone ?? "info"]}`}
+          className={`flex items-start justify-between gap-3 rounded-sm border border-hansan-line border-l-4 bg-hansan-surface-raised px-4 py-3 shadow-neu-raised ${TONE_CLASS[t.tone ?? "info"]}`}
         >
           <p className="text-sm text-hansan-ink">{t.message}</p>
           <button

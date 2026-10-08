@@ -25,7 +25,7 @@ export interface HeaderProps {
 export function Header({ role, contextLabel, onToggleMenu, onToggleSidebar, notifications = 0 }: HeaderProps) {
   const account = DEV_ACCOUNTS[role];
   return (
-    <header className="flex h-[var(--shell-header-h)] shrink-0 items-center gap-3 border-b border-hansan-line bg-hansan-surface-soft px-4 shadow-neu-flat">
+    <header className="flex h-[var(--shell-header-h)] shrink-0 items-center gap-3 border-b-2 border-hansan-ink bg-hansan-surface-soft px-4">
       {onToggleMenu && (
         <IconButton label="Open navigation" size="sm" onClick={onToggleMenu} className="lg:hidden">
           <span aria-hidden>☰</span>

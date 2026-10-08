@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { WORKSPACE_ROUTES, WORKSPACE_SECTIONS } from "@/config/routes";
+import { WORKSPACE_ROUTES, WORKSPACE_SECTION_GROUPS } from "@/config/routes";
 import type { DevRole } from "@/types/roles";
 import { NavigationItem } from "@/components/ui/navigation-item";
 
@@ -36,7 +36,8 @@ export function Sidebar({ role, collapsed = false, onNavigate }: SidebarProps) {
   const activeRoot = routes.find(
     (r) => pathname === r.path || pathname.startsWith(`${r.path}/`),
   );
-  const sections = activeRoot ? WORKSPACE_SECTIONS[activeRoot.path] ?? [] : [];
+  const groups = activeRoot ? WORKSPACE_SECTION_GROUPS[activeRoot.path] ?? [] : [];
+  const sectionCount = groups.reduce((n, g) => n + g.sections.length, 0);
 
   return (
     <nav
@@ -72,25 +73,38 @@ export function Sidebar({ role, collapsed = false, onNavigate }: SidebarProps) {
         />
       ))}
 
-      {!collapsed && sections.length > 0 && (
+      {!collapsed && groups.length > 0 && (
         <>
-          <p className="mb-1 mt-5 px-3 text-[11px] font-bold uppercase tracking-wider text-hansan-ink-muted">
-            {activeRoot?.label} sections
-          </p>
-          {sections.map((section) => (
-            <Link
-              key={section.path}
-              href={section.path}
-              onClick={onNavigate}
-              aria-current={pathname === section.path ? "page" : undefined}
-              className={`ml-3 flex items-center gap-2 rounded-lg border-l-2 py-2 pl-3 pr-2 text-sm transition duration-fast focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] ${
-                pathname === section.path
-                  ? "border-hansan-orange bg-hansan-surface-raised font-semibold text-hansan-ink shadow-neu-flat"
-                  : "border-hansan-line text-hansan-ink-muted hover:text-hansan-ink"
-              }`}
-            >
-              {section.label}
-            </Link>
+          <div className="mb-1 mt-5 flex items-baseline justify-between px-3">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-hansan-ink-muted">
+              {activeRoot?.label} catalog
+            </p>
+            <p className="font-mono text-[10px] text-hansan-ink-muted/70">{sectionCount}</p>
+          </div>
+          {groups.map((group) => (
+            <div key={group.id} className="mb-1">
+              <p className="flex items-baseline justify-between px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wider text-hansan-ink">
+                <span>{group.label}</span>
+                <span className="text-[10px] font-medium normal-case tracking-normal text-hansan-ink-muted">
+                  {group.hint}
+                </span>
+              </p>
+              {group.sections.map((section) => (
+                <Link
+                  key={section.path}
+                  href={section.path}
+                  onClick={onNavigate}
+                  aria-current={pathname === section.path ? "page" : undefined}
+                  className={`ml-3 flex items-center gap-2 rounded-r-lg border-l-2 py-2 pl-3 pr-2 text-sm transition duration-fast focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] ${
+                    pathname === section.path
+                      ? "border-hansan-orange bg-hansan-surface-raised font-semibold text-hansan-ink"
+                      : "border-hansan-line text-hansan-ink-muted hover:border-hansan-line-strong hover:text-hansan-ink"
+                  }`}
+                >
+                  {section.label}
+                </Link>
+              ))}
+            </div>
           ))}
         </>
       )}

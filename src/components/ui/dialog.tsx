@@ -41,7 +41,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={description ? descId : undefined}
-        className="relative w-full max-w-lg rounded-neu bg-hansan-surface-soft p-6 shadow-neu-raised"
+        className="relative w-full max-w-lg rounded-sm border border-hansan-line bg-hansan-surface-raised p-6 shadow-neu-raised"
       >
         <div className="flex items-start justify-between gap-4">
           <div>

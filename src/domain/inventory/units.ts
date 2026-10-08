@@ -57,5 +57,5 @@ export function convertQuantity(
 /** Largest whole base-units obtainable from `available` given `required` per unit. */
 export function howManyFit(availableBase: number, requiredBase: number): number {
   if (requiredBase <= 0) return 0;
-  return Math.floor((availableBase / requiredBase) * 1e6) / 1e6;
+  return Math.floor(availableBase / requiredBase);
 }

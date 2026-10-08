@@ -20,7 +20,7 @@ export function IconButton({
       type="button"
       aria-label={label}
       title={label}
-      className={`inline-flex items-center justify-center rounded-xl bg-hansan-surface-soft text-hansan-ink shadow-neu-raised-sm transition duration-fast hover:brightness-[1.03] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${sizeClass} ${className}`.trim()}
+      className={`inline-flex items-center justify-center rounded-sm bg-hansan-surface-raised text-hansan-ink border border-hansan-line transition duration-fast hover:border-hansan-ink focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${sizeClass} ${className}`.trim()}
       {...rest}
     >
       {children}

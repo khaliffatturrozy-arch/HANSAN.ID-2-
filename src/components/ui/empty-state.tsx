@@ -19,8 +19,8 @@ export interface EmptyStateProps {
  */
 export function EmptyState({ title, description, actionLabel, onAction, actionHref, className = "" }: EmptyStateProps) {
   return (
-    <div className={`flex flex-col items-center justify-center rounded-neu border border-dashed border-hansan-line bg-hansan-surface-soft px-6 py-14 text-center ${className}`.trim()}>
-      <span aria-hidden className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-hansan-surface text-2xl shadow-neu-inset">
+    <div className={`flex flex-col items-center justify-center rounded-sm border border-dashed border-hansan-line-strong bg-hansan-surface-raised px-6 py-14 text-center ${className}`.trim()}>
+      <span aria-hidden className="mb-4 flex h-14 w-14 items-center justify-center rounded-sm border border-hansan-line bg-hansan-surface-soft text-2xl text-hansan-ink-muted">
         ◻
       </span>
       <h3 className="text-base font-bold text-hansan-ink">{title}</h3>
@@ -28,7 +28,7 @@ export function EmptyState({ title, description, actionLabel, onAction, actionHr
       {actionLabel && actionHref && (
         <Link
           href={actionHref}
-          className="mt-5 inline-flex h-8 items-center justify-center rounded-xl bg-hansan-surface px-5 text-xs font-semibold text-hansan-ink shadow-neu-raised-sm transition hover:brightness-[1.03]"
+          className="mt-5 inline-flex h-8 items-center justify-center rounded-sm border border-hansan-line-strong bg-hansan-surface-raised px-5 text-xs font-bold text-hansan-ink transition hover:border-hansan-ink"
         >
           {actionLabel}
         </Link>

@@ -53,7 +53,7 @@ export default function LoginPage() {
           <span className="text-2xl font-black tracking-tight text-hansan-ink">HANSAN</span>
         </Link>
 
-        <section className="rounded-neu bg-hansan-surface-soft p-6 shadow-neu-raised sm:p-8">
+        <section className="rounded-sm border border-hansan-line bg-hansan-surface-raised p-6 sm:p-8">
           <h1 className="text-xl font-bold text-hansan-ink">Development sign-in</h1>
           <p className="mt-1.5 text-sm text-hansan-ink-muted">
             Local-only role simulation for the UI/UX sprint. No real authentication —
@@ -92,7 +92,7 @@ export default function LoginPage() {
           </form>
         </section>
 
-        <section className="mt-6 rounded-neu bg-hansan-surface-soft p-6 shadow-neu-raised">
+        <section className="mt-6 rounded-sm border border-hansan-line bg-hansan-surface-raised p-6">
           <h2 className="text-sm font-bold uppercase tracking-wider text-hansan-ink-muted">
             Development accounts
           </h2>
@@ -107,7 +107,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => quickSignIn(role)}
-                    className="flex w-full items-center justify-between gap-3 rounded-xl bg-hansan-surface px-4 py-3 text-left shadow-neu-raised-sm transition hover:brightness-[1.03] focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
+                    className="flex w-full items-center justify-between gap-3 rounded-sm border border-hansan-line bg-hansan-surface-raised px-4 py-3 text-left transition hover:border-hansan-ink focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)]"
                   >
                     <span>
                       <span className="block text-sm font-semibold text-hansan-ink">

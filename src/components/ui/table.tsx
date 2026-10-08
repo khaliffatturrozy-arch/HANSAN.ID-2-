@@ -25,7 +25,7 @@ export interface TableProps<T> {
  */
 export function Table<T>({ columns, rows, rowKey, emptyMessage, caption, className = "" }: TableProps<T>) {
   return (
-    <div className={`w-full overflow-x-auto rounded-neu border border-hansan-line bg-hansan-surface-raised shadow-neu-flat ${className}`.trim()}>
+    <div className={`w-full overflow-x-auto rounded-sm border border-hansan-line bg-hansan-surface-raised ${className}`.trim()}>
       <table className="w-full border-collapse text-sm">
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead>

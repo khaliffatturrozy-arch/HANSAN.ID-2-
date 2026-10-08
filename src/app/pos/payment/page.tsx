@@ -41,10 +41,10 @@ export default function PosPaymentPage() {
             aria-pressed={method === m.value}
             disabled={cartEmpty}
             onClick={() => setMethod(m.value)}
-            className={`rounded-xl px-4 py-4 text-sm font-semibold transition duration-fast focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={`rounded-sm border px-4 py-4 text-sm font-bold transition duration-fast focus-visible:outline-none focus-visible:[box-shadow:var(--focus-ring)] disabled:cursor-not-allowed disabled:opacity-50 ${
               method === m.value && !cartEmpty
-                ? "bg-hansan-surface-raised text-hansan-ink shadow-neu-raised ring-2 ring-hansan-orange"
-                : "bg-hansan-surface-soft text-hansan-ink shadow-neu-inset"
+                ? "border-hansan-orange bg-hansan-surface-raised text-hansan-ink ring-2 ring-hansan-orange"
+                : "border-hansan-line bg-hansan-surface-raised text-hansan-ink"
             }`}
           >
             {m.label}
@@ -52,7 +52,7 @@ export default function PosPaymentPage() {
         ))}
       </div>
 
-      <div className="mb-6 flex items-center justify-between rounded-neu bg-hansan-surface-soft px-5 py-4 shadow-neu-raised-sm">
+      <div className="mb-6 flex items-center justify-between rounded-sm border border-hansan-line bg-hansan-surface-raised px-5 py-4">
         <span className="text-sm text-hansan-ink-muted">Amount due</span>
         <span className="text-2xl font-bold text-hansan-ink">Rp 0</span>
       </div>

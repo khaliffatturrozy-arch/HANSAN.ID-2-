@@ -24,7 +24,7 @@ export function SkeletonList({ rows = 5, className = "" }: { rows?: number; clas
   return (
     <div aria-hidden className={`flex flex-col gap-3 ${className}`.trim()}>
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="flex items-center gap-4 rounded-xl bg-hansan-surface-soft p-4 shadow-neu-flat">
+        <div key={i} className="flex items-center gap-4 rounded-sm border border-hansan-line bg-hansan-surface-raised p-4">
           <Skeleton width="h-8 w-8" height="h-8" rounded="rounded-full" />
           <div className="flex-1 space-y-2">
             <Skeleton width="w-1/3" />
