@@ -4,7 +4,7 @@
  * fabricate records — they start EMPTY like a real fresh database.
  */
 import type { CatalogPort, OrderPort, OrderRecord, ProductRecord, UserRecord } from "@/domain/shared/ports";
-import type { CustomerPort, CustomerRecord, ReservationPort, ReservationRecord, TablePort, TableRecord } from "@/domain/customers/ports";
+import type { CustomerPort, CustomerRecord, ReservationPort, ReservationRecord } from "@/domain/customers/ports";
 import type { AuditEvent, AuditLogPort } from "@/domain/audit/events";
 import type {
   FinancePort,
@@ -29,8 +29,12 @@ export class MemoryOrders implements OrderPort {
   rows = new Map<string, OrderRecord>();
   private counters = new Map<string, number>();
 
-  async findById(id: string): Promise<OrderRecord | null> {
-    return this.rows.get(id) ?? null;
+  async findById(id: string, scope: { organizationId: string; outletId?: string }): Promise<OrderRecord | null> {
+    const row = this.rows.get(id) ?? null;
+    if (!row) return null;
+    if (row.tenantId !== scope.organizationId) return null;
+    if (scope.outletId && row.outletId !== scope.outletId) return null;
+    return row;
   }
   async save(order: OrderRecord): Promise<void> {
     this.rows.set(order.id, { ...order, lines: order.lines.map((l) => ({ ...l })) });
@@ -61,11 +65,17 @@ export class MemoryOrders implements OrderPort {
 
 export class MemoryCatalog implements CatalogPort {
   rows = new Map<string, ProductRecord>();
-  async findById(id: string): Promise<ProductRecord | null> {
-    return this.rows.get(id) ?? null;
+  async findById(id: string, scope: { organizationId: string }): Promise<ProductRecord | null> {
+    const row = this.rows.get(id) ?? null;
+    if (!row) return null;
+    if (row.tenantId !== scope.organizationId) return null;
+    return row;
   }
   async listActive(tenantId: string): Promise<ProductRecord[]> {
     return Array.from(this.rows.values()).filter((p) => p.tenantId === tenantId && p.active);
+  }
+  async put(product: ProductRecord): Promise<void> {
+    this.rows.set(product.id, product);
   }
 }
 

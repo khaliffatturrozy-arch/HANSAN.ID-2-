@@ -48,7 +48,19 @@ export class FinanceService {
     return expense;
   }
 
-  /** POS-side refund request: validates order + cash method + persists. */
+  /**
+   * POS-side refund request: validates order + cash method + persists.
+   *
+   * Integrity guards (Phase 5):
+   *   * the order must exist AND belong to the caller's tenant (cross-tenant
+   *     refund requests are rejected as NOT_FOUND, never leaking existence);
+   *   * the order must belong to the claimed outlet (a refund cannot be filed
+   *     against a different outlet's order);
+   *   * the order must actually be PAID — refunding an unpaid/cancelled order
+   *     would move money that was never captured;
+   *   * the refund amount cannot exceed the order's grand total (a refund is a
+   *     reversal of captured revenue, not a payout beyond it).
+   */
   async requestRefund(params: {
     tenantId: string;
     outletId: string;
@@ -62,9 +74,28 @@ export class FinanceService {
     if (!Number.isInteger(params.amountIdr) || params.amountIdr <= 0) {
       throw new AppError(ERROR_CODES.VALIDATION_FAILED, { message: "Refund amount must be a positive integer" });
     }
-    const order = await this.deps.orders.findById(params.orderId);
+    // Phase 12 — scoped read: `params.tenantId` MUST be the verified actor's
+    // tenant (never a request-body organization id). A cross-tenant orderId
+    // resolves to null here → NOT_FOUND below, so existence never leaks; the
+    // adapter enforces the scope at the query boundary (no unscoped fallback).
+    const order = await this.deps.orders.findById(params.orderId, { organizationId: params.tenantId });
     if (!order || order.tenantId !== params.tenantId) {
       throw new AppError(ERROR_CODES.NOT_FOUND, { message: "Order not found" });
+    }
+    if (order.outletId !== params.outletId) {
+      throw new AppError(ERROR_CODES.OUTLET_MISMATCH, {
+        message: "Refund outlet does not match the order's outlet",
+      });
+    }
+    if (order.paymentState !== "paid") {
+      throw new AppError(ERROR_CODES.REFUND_NOT_ELIGIBLE, {
+        message: "Only paid orders can be refunded",
+      });
+    }
+    if (params.amountIdr > order.grandTotalIdr) {
+      throw new AppError(ERROR_CODES.VALIDATION_FAILED, {
+        message: "Refund amount cannot exceed the order total",
+      });
     }
     const refund: RefundRecord = {
       id: createId("ref"),

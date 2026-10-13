@@ -10,14 +10,12 @@ function deps(clock: () => Date = () => new Date("2026-01-01T00:00:00.000Z")) {
 describe("FinanceService", () => {
   let s: FinanceService;
   let orders: MemoryOrders;
-  let finance: MemoryFinance;
   let audit: MemoryAudit;
 
   beforeEach(() => {
     const d = deps();
     s = new FinanceService(d);
     orders = d.orders;
-    finance = d.finance;
     audit = d.audit;
   });
 
