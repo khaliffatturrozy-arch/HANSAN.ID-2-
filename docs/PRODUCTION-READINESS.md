@@ -1,8 +1,12 @@
 # HANSAN — Production Readiness
 
-Status snapshot derived from **actual repository inspection** (branch `main` @ `1bf82a4`
-plus uncommitted UI refinements), not from prior reports. Last updated: Phase 1 of the
-Production Readiness Autopilot.
+Status snapshot derived from **actual repository inspection**. **Current baseline:
+release/hansan-c1-c3-ci-validation @ `17d9906` (C1 `4042959`, C2 `91fbbef`, C3
+`17d9906`)** — verified against code and test results. The original snapshot
+(branch `main` @ `1bf82a4` + uncommitted UI refinements, Phase 1 of the Production
+Readiness Autopilot) is **historical**; rows below that still describe that era are
+marked *(pre-C1 — superseded)*. Updated by the CI-stabilization batch (see
+`docs/AUTOPILOT-CI-STABILIZATION-20261015.md`).
 
 Legend for feature status:
 
@@ -18,7 +22,7 @@ Legend for feature status:
 
 | Feature | Domain logic | UI | Persistence | Integration tests | Production | Notes |
 |---|---|---|---|---|---|---|
-| POS order flow | Implemented locally (A2: `src/domain/pos/*`, unit tests) | UI-only (in-memory draft, menu intentionally empty per §4) | ❌ None | ❌ | ❌ | `PosService` exists; **no API route calls it** |
+| POS order flow | Implemented locally (A2: `src/domain/pos/*`, unit tests) | Menu selection still local (§4); order placement via `/pos/*` | **Persisted through backend (C1): `/api/orders` + `/api/orders/[id]` call `PosService` server-authoritatively** (authZ, idempotency, rate-limit) | local service tests only (`pos-order`, `payment-lifecycle`) | ❌ | Menu/catalog API route still absent; no live DB exercised |
 | Kitchen KDS | Implemented locally (A3 + `aggregate.ts`) | UI-only (ticket board renders empty) | ❌ None | ❌ | ❌ | Station routing lives on `OrderLine.station` |
 | Bar KDS | Implemented locally (same) | UI-only | ❌ None | ❌ | ❌ | Explicit `bar` station, never name-inferred |
 | Checker / aggregate | Implemented locally (`kds/aggregate.ts`, tested) | UI-only | Derived at read time | ❌ | ❌ | Aggregate derived from persisted item states once persisted |
@@ -30,19 +34,19 @@ Legend for feature status:
 | Owner / HQ | Aggregations implemented locally (A8) | UI-only (honest zero states) | ❌ | ❌ | ❌ | |
 | Developer | Health endpoint exists (`/api/health`) | UI-only | n/a | ❌ | ❌ | |
 | Customer ordering | Implemented locally (A7) | UI-only | ❌ | ❌ | ❌ | |
-| **Authentication** | Dev credentials verification only (`src/lib/dev-session.ts`) | Login page | **None — localStorage only** | ❌ | ❌ | **Not production auth** |
-| **Authorization** | RBAC core implemented + unit-tested (A9/A10) | Sidebar visibility only | Server enforcement **absent** (no middleware, no guarded routes) | unit only | ❌ | P0 |
+| **Authentication** | Signed-cookie session + Supabase Auth routes (C1), unit-tested (`auth-session`, `live-session`); live provider blocked on BLOCKER-001 | Login page | Fail-closed 503 without `SESSION_SECRET`; **not production-verified** | ❌ live | ❌ | NOT production auth until verified live |
+| **Authorization** | RBAC core implemented + unit-tested (A9/A10); **server-side `requireAuth`/`authorize` + middleware exist (C1)** | Sidebar visibility | Enforced on API routes; **not exercised on a live deployment** | unit only | ❌ | Staging exercise pending |
 | Rate limiting | In-memory fixed window (`src/server/rate-limit.ts`) | n/a | Per-instance only | unit only | ❌ | Documented limitation |
 
 ## P0 — critical security / data-loss / tenant-isolation / financial-integrity
 
 | ID | Finding | Evidence | Target phase |
 |---|---|---|---|
-| P0-1 | **No server-side authorization.** Every page relies on client-side role checks; `WorkspaceGate` is localStorage. Any future endpoint would be callable without identity. | `src/components/layout/workspace-gate.tsx`, no `src/middleware.ts` | Phase 3 |
-| P0-2 | **No production authentication.** Dev session is a localStorage simulation; identity would be forgeable once APIs exist. | `src/lib/dev-session.ts` | Phase 3 (Supabase Auth blocked on BLOCKER-001; interim signed-cookie demo session, explicitly labeled demo) |
-| P0-3 | **No tenant/outlet enforcement at any boundary.** `assertAccessible()` exists but is called by nothing outside tests. | `src/domain/authz/rbac.ts` | Phase 3/4 |
-| P0-4 | **No persistence layer** — "orders" in the UI are never stored; a UI-only order must never be treated as a transaction. | no `prisma/schema`, no DB adapter | Phase 2/4 |
-| P0-5 | **Demo/production data separation** does not exist yet because no store exists; must be guaranteed by design before the first production write. | — | Phase 2 (schema) / Phase 3 (session mode) |
+| P0-1 | ~~No server-side authorization~~ **Resolved locally (C1), NOT live-verified:** `src/middleware.ts` gates workspaces fail-closed on signed session cookies; `requireAuth`/`authorize` enforced server-side on API routes (e.g., `src/app/api/orders/route.ts`); RBAC unit-tested. | `src/middleware.ts`, `src/server/authz.ts`, OA6 gate results (local) | Implemented + locally tested; staging/live exercise pending |
+| P0-2 | ~~No production authentication~~ **Partially resolved locally (C1), NOT production-verified:** signed-session cookies + Supabase Auth routes (`/api/auth/sign-in`, `/session`, `/live`, `/signout`) implemented and unit-tested (`auth-session`, `live-session`); production fails closed (503) without `SESSION_SECRET`; real provider credentials still BLOCKED (BLOCKER-001). The legacy localStorage dev session (`src/lib/dev-session.ts`) is never promoted to production auth. | `src/server/auth/*`, `tests/auth-session.test.ts`, `docs/MANUAL-BLOCKERS.md` | Live auth verification pending BLOCKER-001 |
+| P0-3 | ~~No tenant/outlet enforcement at any boundary~~ **Resolved locally (C1), NOT live-verified:** scoped callers + `withTenantTransaction` GUC pinning + fail-closed `requireTenantContext` (`src/server/db/tenant-context.ts`, `src/domain/shared/tenant-scope.ts`); cross-tenant denial unit-tested (`tenant-isolation` 13, `phase12-scoped-callers` 13). RLS not active on any live database; pooled behavior unverified. | local tests (OA6), `prisma/rls-tenant-isolation.sql` (unapplied artifact) | Staging RLS gate G1–G9 pending |
+| P0-4 | ~~No persistence layer~~ **Resolved locally (C1), NOT migrated anywhere:** `prisma/schema.prisma` (19 models) + committed migration `20261009000000_init` (unapplied to any remote database) + Prisma port adapters (`src/server/db/*-adapter.ts`); persistence tests pass locally (`phase-a-persistence`, `pos-order`). | local tests (OA6) | Migration to staging pending proven-staging gate |
+| P0-5 | Demo/production data separation **designed and locally tested (C1 artifacts)**: `prisma/rls-demo-isolation.sql` + tenant scoping unit-tested. **NOT enforced in any live environment until owner-authorized RLS activation (gate G1–G9).** | `prisma/rls-demo-isolation.sql`, `tests/tenant-isolation.test.ts` | RLS gate |
 
 ## P1 — blockers to core operational workflows
 
@@ -61,9 +65,9 @@ Legend for feature status:
 | P2-1 | Health endpoint reports static "Phase 0" strings; no env/db reality check. | Phase 10 |
 | P2-2 | Rate limiter is per-instance (documented); needs a shared store before strict limits. | Phase 8 |
 | P2-3 | No structured request logging / error monitoring integration. | Phase 8 |
-| P2-4 | No backup/recovery runbook. | Phase 10 |
+| P2-4 | Backup/recovery runbook **written** (`docs/PHASE-16-STAGING-INFRASTRUCTURE-PREPARATION.md` §4.2); **no backup has ever been created or restored — evidence NONE (gate G2 blocked)**. | PHASE-16 §4.2 | Staging execution pending |
 | P2-5 | `npm audit`: 2 advisories in Next-bundled PostCSS; only fix is breaking `next@16` — **not** to be applied blindly. | Phase 8 (assess, do not force) |
-| P2-6 | No CI workflow running typecheck/lint/test/build. | Phase 8 |
+| P2-6 | CI workflow **exists** (C2: `.github/workflows/ci.yml`, secret-free, `contents: read`). **Run #1 (PR #1, Oct 15 2026) FAILED** at `npm ci` (npm-10 lockfile validation: missing `@emnapi/core`/`@emnapi/runtime` entries). **Local fix prepared (uncommitted): Node 22 workflow alignment + lockfile regenerated under Node 22.23.3/npm 10.9.9; `npm ci` + all 5 gates pass locally on the CI runtime class. CI result remains FAILING until the fix is pushed and an Actions run is observed green.** | Actions run #1 (failed), `docs/AUTOPILOT-CI-STABILIZATION-20261015.md` | Owner push + observed green run |
 
 ## P3 — later enhancements
 
