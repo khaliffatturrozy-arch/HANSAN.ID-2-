@@ -1,10 +1,10 @@
 # ============================================================================
-# HANSAN — CI pull-request gate (review-only, NOT AUTO-ENABLED)
+# HANSAN — CI pull-request gate (active on PRs to main; read-only token, no secrets)
 # ============================================================================
 # Repository policy (§25/§26): CI workflows are infrastructure on the owner's
-# explicit list, not an autonomous auditor. This file is a MINIMAL, REVIEWABLE
-# draft created in Phase 16 so the owner can approve the script names and the
-# secret-free design BEFORE anything is enabled, merged, or pushed.
+# explicit list, not an autonomous auditor. This file started as a MINIMAL,
+# REVIEWABLE draft in Phase 16; the owner later pushed it with PR #1 (run #1,
+# Oct 15 2026), so the gate is now ACTIVE — it still consumes no secrets.
 #
 # What this file DOES:
 #   1. Installs dependencies from the lockfile (npm ci — reproducible).
@@ -26,9 +26,10 @@
 #   - Trigger any deployment, migration, RLS activation, or DB write.
 #
 # Node requirement: the repo declares no "engines" and is pinned to Next.js
-# 14.2.35, whose supported LTS lines are Node 18/20/22. CI pins Node 20.
+# 14.2.35, whose supported LTS lines are Node 18/20/22. CI pins Node 22 —
+# also the minimum required by @supabase/supabase-js (engines: node >=22).
 # The developer machine currently runs Node 24 (satisfies runtime); CI uses
-# the pinned 20 LTS image so the gate does not drift from the recorded tooling.
+# the pinned 22 LTS image so the gate does not drift from the recorded tooling.
 # ============================================================================
 
 name: CI — Pull Request Gate
@@ -52,10 +53,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node 20 (LTS pinned for Next 14.2.35)
+      - name: Set up Node 22 (LTS; required by @supabase/supabase-js >=22)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies (lockfile)
