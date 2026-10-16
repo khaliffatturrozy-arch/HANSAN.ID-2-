@@ -7,6 +7,8 @@
  * demo surface that satisfies "demo data cannot mutate production records".
  */
 import type { CatalogPort, OrderPort, OrderRecord, PaymentPort, PaymentRecord, ProductRecord } from "@/domain/shared/ports";
+import type { ExpenseRecord, FinancePort, RefundRecord } from "@/domain/finance/ports";
+import { serverAudit } from "@/server/audit";
 
 export class MemoryOrders implements OrderPort {
   rows = new Map<string, OrderRecord>();
@@ -96,5 +98,73 @@ export class MemoryPayments implements PaymentPort {
     rows = rows.sort((a, b) => b.capturedAt.localeCompare(a.capturedAt));
     if (options?.limit) rows = rows.slice(0, options.limit);
     return rows.map((p) => ({ ...p }));
+  }
+}
+
+/**
+ * In-memory FinancePort for the DEMO SANDBOX and tests. Like the other memory
+ * stores it starts EMPTY and never fabricates rows. Demo refunds physically
+ * never reach Postgres.
+ */
+export class MemoryFinance implements FinancePort {
+  expenses: ExpenseRecord[] = [];
+  refunds = new Map<string, RefundRecord>();
+
+  async saveExpense(e: ExpenseRecord): Promise<void> {
+    this.expenses.push({ ...e });
+  }
+  async listExpenses(tenantId: string, sinceIso?: string): Promise<ExpenseRecord[]> {
+    return this.expenses.filter(
+      (e) => e.tenantId === tenantId && (!sinceIso || e.incurredAt >= sinceIso),
+    );
+  }
+  async getRefund(id: string, organizationId: string): Promise<RefundRecord | null> {
+    const current = this.refunds.get(id) ?? null;
+    if (!current || current.tenantId !== organizationId) return null;
+    return current;
+  }
+  async saveRefund(r: RefundRecord): Promise<void> {
+    this.refunds.set(r.id, { ...r });
+  }
+  async transitionRefund(params: {
+    id: string;
+    organizationId: string;
+    expectedStatus: RefundRecord["status"];
+    patch: Partial<Pick<RefundRecord, "status" | "decidedBy" | "decidedAt">>;
+  }): Promise<RefundRecord | null> {
+    const current = this.refunds.get(params.id) ?? null;
+    if (!current || current.tenantId !== params.organizationId || current.status !== params.expectedStatus) return null;
+    const updated: RefundRecord = { ...current, ...params.patch };
+    this.refunds.set(updated.id, updated);
+    return updated;
+  }
+
+  async transitionRefundWithAudit(params: {
+    id: string;
+    organizationId: string;
+    expectedStatus: RefundRecord["status"];
+    patch: Partial<Pick<RefundRecord, "status" | "decidedBy" | "decidedAt">>;
+  }, auditEvent: {
+    id: string;
+    action: string;
+    actorId: string;
+    actorRole: string;
+    entityType: string;
+    entityId: string;
+    tenantId: string;
+    outletId: string;
+    occurredAt: string;
+    metadata?: Record<string, string | number | boolean>;
+  }): Promise<RefundRecord | null> {
+    // Demo sandbox is single-process; serverAudit.record never throws, so
+    // transition + audit are effectively atomic here. No state mutation occurs
+    // if the conditional update does not match.
+    const updated = await this.transitionRefund(params);
+    if (!updated) return null;
+    await serverAudit.record(auditEvent as import("@/domain/audit/events").AuditEvent);
+    return updated;
+  }
+  async listRefunds(tenantId: string): Promise<RefundRecord[]> {
+    return Array.from(this.refunds.values()).filter((r) => r.tenantId === tenantId);
   }
 }

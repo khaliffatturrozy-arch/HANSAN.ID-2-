@@ -8,6 +8,7 @@ import { createId } from "@/domain/shared/ids";
 import { AUDIT_ACTIONS, type AuditLogPort } from "@/domain/audit/events";
 import type { FinancePort, ExpenseRecord, RefundRecord } from "@/domain/finance/ports";
 import type { OrderPort, UserRecord } from "@/domain/shared/ports";
+import type { DevRole } from "@/types/roles";
 import { canDecideRefund, canTransitionRefund, validateRefundMethod } from "@/domain/finance/rules";
 import { summarizeFinancials, type FinancialSummary } from "@/domain/finance/reporting";
 
@@ -127,7 +128,7 @@ export class FinanceService {
 
   /** Approve/reject: Manager/Back-Office only + separation of duties. */
   async decideRefund(refundId: string, decision: "approved" | "rejected", actor: UserRecord): Promise<RefundRecord> {
-    const refund = await this.deps.finance.getRefund(refundId);
+    const refund = await this.deps.finance.getRefund(refundId, actor.tenantId);
     if (!refund) throw new AppError(ERROR_CODES.NOT_FOUND, { message: "Refund not found" });
     const allowed = canDecideRefund({ refund, actorId: actor.id, actorRole: actor.role });
     if (!allowed.ok) throw allowed.error;
@@ -135,26 +136,38 @@ export class FinanceService {
       throw new AppError(ERROR_CODES.REFUND_ALREADY_DECIDED);
     }
     const decidedAt = this.deps.clock().toISOString();
-    const updated: RefundRecord = { ...refund, status: decision, decidedBy: actor.id, decidedAt };
-    await this.deps.finance.saveRefund(updated);
-    await this.deps.audit.record({
-      id: createId("aud"),
-      action: decision === "approved" ? AUDIT_ACTIONS.REFUND_APPROVED : AUDIT_ACTIONS.REFUND_REJECTED,
-      actorId: actor.id,
-      actorRole: "system",
-      entityType: "refund",
-      entityId: refund.id,
-      tenantId: refund.tenantId,
-      outletId: refund.outletId,
-      occurredAt: decidedAt,
-      metadata: { amountIdr: refund.amountIdr },
-    });
+    const updated = await this.deps.finance.transitionRefundWithAudit(
+      {
+        id: refundId,
+        organizationId: actor.tenantId,
+        expectedStatus: refund.status,
+        patch: { status: decision, decidedBy: actor.id, decidedAt },
+      },
+      {
+        id: createId("aud"),
+        action: decision === "approved" ? AUDIT_ACTIONS.REFUND_APPROVED : AUDIT_ACTIONS.REFUND_REJECTED,
+        actorId: actor.id,
+        actorRole: actor.role as DevRole,
+        entityType: "refund",
+        entityId: refund.id,
+        tenantId: refund.tenantId,
+        outletId: refund.outletId,
+        occurredAt: decidedAt,
+        metadata: { amountIdr: refund.amountIdr },
+      },
+    );
+    if (!updated) {
+      // Another request transitioned this refund first — replay-safe conflict.
+      throw new AppError(ERROR_CODES.CONFLICT, {
+        message: "Refund was already decided by another request",
+      });
+    }
     return updated;
   }
 
   /** Complete an approved cash refund (executes the payout). */
   async completeRefund(refundId: string, actor: UserRecord): Promise<RefundRecord> {
-    const refund = await this.deps.finance.getRefund(refundId);
+    const refund = await this.deps.finance.getRefund(refundId, actor.tenantId);
     if (!refund) throw new AppError(ERROR_CODES.NOT_FOUND, { message: "Refund not found" });
     if (!canTransitionRefund(refund.status, "completed")) {
       throw new AppError(ERROR_CODES.REFUND_ALREADY_DECIDED, {
@@ -163,20 +176,32 @@ export class FinanceService {
     }
     const method = validateRefundMethod(refund.method);
     if (!method.ok) throw method.error;
-    const updated: RefundRecord = { ...refund, status: "completed" };
-    await this.deps.finance.saveRefund(updated);
-    await this.deps.audit.record({
-      id: createId("aud"),
-      action: AUDIT_ACTIONS.REFUND_COMPLETED,
-      actorId: actor.id,
-      actorRole: "system",
-      entityType: "refund",
-      entityId: refund.id,
-      tenantId: refund.tenantId,
-      outletId: refund.outletId,
-      occurredAt: this.deps.clock().toISOString(),
-      metadata: { amountIdr: refund.amountIdr },
-    });
+    const completedAt = this.deps.clock().toISOString();
+    const updated = await this.deps.finance.transitionRefundWithAudit(
+      {
+        id: refundId,
+        organizationId: actor.tenantId,
+        expectedStatus: refund.status,
+        patch: { status: "completed" },
+      },
+      {
+        id: createId("aud"),
+        action: AUDIT_ACTIONS.REFUND_COMPLETED,
+        actorId: actor.id,
+        actorRole: actor.role as DevRole,
+        entityType: "refund",
+        entityId: refund.id,
+        tenantId: refund.tenantId,
+        outletId: refund.outletId,
+        occurredAt: completedAt,
+        metadata: { amountIdr: refund.amountIdr },
+      },
+    );
+    if (!updated) {
+      throw new AppError(ERROR_CODES.CONFLICT, {
+        message: "Refund was already completed by another request",
+      });
+    }
     return updated;
   }
 

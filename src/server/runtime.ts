@@ -15,13 +15,15 @@ import { PrismaCatalog } from "@/server/db/catalog-adapter";
 import { PrismaAudit } from "@/server/db/audit-adapter";
 import { PrismaIdempotency } from "@/server/db/idempotency-adapter";
 import { PrismaPayments } from "@/server/db/payment-adapter";
-import { MemoryOrders, MemoryCatalog, MemoryPayments } from "@/server/db/memory-store";
+import { MemoryOrders, MemoryCatalog, MemoryPayments, MemoryFinance } from "@/server/db/memory-store";
 import { InMemoryIdempotency } from "@/server/idempotency";
 import { serverAudit } from "@/server/audit";
+import { PrismaFinance } from "@/server/db/finance-adapter";
 import type { SessionPayload } from "@/server/session";
 import type { CatalogPort, OrderPort, PaymentPort } from "@/domain/shared/ports";
 import type { AuditLogPort } from "@/domain/audit/events";
 import type { IdempotencyPort } from "@/server/idempotency";
+import type { FinancePort } from "@/domain/finance/ports";
 
 export interface Runtime {
   orders: OrderPort;
@@ -29,6 +31,7 @@ export interface Runtime {
   audit: AuditLogPort;
   idempotency: IdempotencyPort;
   payments: PaymentPort;
+  finance: FinancePort;
   scope: "DEMO" | "PRODUCTION";
 }
 
@@ -43,6 +46,7 @@ export function demoSandbox(): Runtime {
       audit: serverAudit,
       idempotency: new InMemoryIdempotency(),
       payments: new MemoryPayments(),
+      finance: new MemoryFinance(),
       scope: "DEMO",
     };
   }
@@ -59,6 +63,7 @@ export function runtimeFor(session: SessionPayload): Runtime | null {
     audit: new PrismaAudit(db),
     idempotency: new PrismaIdempotency(db),
     payments: new PrismaPayments(db),
+    finance: new PrismaFinance(db),
     scope: "PRODUCTION",
   };
 }

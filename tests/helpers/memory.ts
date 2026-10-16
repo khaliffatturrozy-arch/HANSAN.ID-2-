@@ -81,6 +81,7 @@ export class MemoryCatalog implements CatalogPort {
 
 export class MemoryFinance implements FinancePort {
   expenses: ExpenseRecord[] = [];
+  events: AuditEvent[] = [];
   refunds = new Map<string, RefundRecord>();
   async saveExpense(e: ExpenseRecord): Promise<void> {
     this.expenses.push({ ...e });
@@ -88,11 +89,47 @@ export class MemoryFinance implements FinancePort {
   async listExpenses(tenantId: string, sinceIso?: string): Promise<ExpenseRecord[]> {
     return this.expenses.filter((e) => e.tenantId === tenantId && (!sinceIso || e.incurredAt >= sinceIso));
   }
-  async getRefund(id: string): Promise<RefundRecord | null> {
-    return this.refunds.get(id) ?? null;
+  async getRefund(id: string, organizationId: string): Promise<RefundRecord | null> {
+    const current = this.refunds.get(id) ?? null;
+    if (!current || current.tenantId !== organizationId) return null;
+    return current;
   }
   async saveRefund(r: RefundRecord): Promise<void> {
     this.refunds.set(r.id, { ...r });
+  }
+  async transitionRefund(params: {
+    id: string;
+    organizationId: string;
+    expectedStatus: RefundRecord["status"];
+    patch: Partial<Pick<RefundRecord, "status" | "decidedBy" | "decidedAt">>;
+  }): Promise<RefundRecord | null> {
+    const current = this.refunds.get(params.id) ?? null;
+    if (!current || current.tenantId !== params.organizationId || current.status !== params.expectedStatus) return null;
+    const updated: RefundRecord = { ...current, ...params.patch };
+    this.refunds.set(updated.id, updated);
+    return updated;
+  }
+  async transitionRefundWithAudit(params: {
+    id: string;
+    organizationId: string;
+    expectedStatus: RefundRecord["status"];
+    patch: Partial<Pick<RefundRecord, "status" | "decidedBy" | "decidedAt">>;
+  }, auditEvent: {
+    id: string;
+    action: string;
+    actorId: string;
+    actorRole: string;
+    entityType: string;
+    entityId: string;
+    tenantId: string;
+    outletId: string;
+    occurredAt: string;
+    metadata?: Record<string, string | number | boolean>;
+  }): Promise<RefundRecord | null> {
+    const updated = await this.transitionRefund(params);
+    if (!updated) return null;
+    this.events.push(auditEvent as AuditEvent);
+    return updated;
   }
   async listRefunds(tenantId: string): Promise<RefundRecord[]> {
     return Array.from(this.refunds.values()).filter((r) => r.tenantId === tenantId);

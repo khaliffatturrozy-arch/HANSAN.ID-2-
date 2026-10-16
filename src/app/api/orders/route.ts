@@ -232,7 +232,18 @@ export async function GET(req: Request): Promise<NextResponse<ApiResponse<OrderH
 
     const { searchParams } = new URL(req.url);
     const limit = Math.min(Math.max(Number(searchParams.get("limit") ?? "50"), 1), 200);
-    const sinceIso = searchParams.get("sinceIso") ?? undefined;
+    // Validation: a non-empty sinceIso MUST be a valid ISO 8601 timestamp.
+    // The persistence adapter passes it straight to the `createdAt gte`
+    // filter, so a malformed value would reach Postgres as an Invalid Date
+    // and either error or silently return wrong rows. Missing/empty is
+    // intentionally treated as "no filter" (undefined).
+    const sinceIso: string | undefined = searchParams.get("sinceIso") ?? undefined;
+    if (sinceIso !== undefined && sinceIso !== "") {
+      const parsed = new Date(sinceIso);
+      if (Number.isNaN(parsed.getTime())) {
+        return jsonFail(ERROR_CODES.VALIDATION_FAILED, "sinceIso must be a valid ISO 8601 timestamp", 400);
+      }
+    }
 
     const outletId = authCtx.actor.outletIds[0];
     if (!outletId) {
