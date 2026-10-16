@@ -19,10 +19,15 @@ describe('idempotency replay', () => {
       expect(replay.response).toEqual({ orderId: 'ord_1' });
     }
 
-    idem.fail({ organizationId: 'ten_1', scope, key });
+    // fail() on a completed claim is a no-op — the claim stays completed
+    await idem.fail({ organizationId: 'ten_1', scope, key });
 
+    // The completed claim must STILL replay (no duplicate execute)
     const again = await idem.begin({ organizationId: 'ten_1', scope, key, requestHash: 'abc123' });
-    expect(again.status).toBe('started');
+    expect(again.status).toBe('replay');
+    if (again.status === 'replay') {
+      expect(again.response).toEqual({ orderId: 'ord_1' });
+    }
   });
 
   it('rejects a conflicting request hash', async () => {

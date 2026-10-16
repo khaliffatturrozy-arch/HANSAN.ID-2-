@@ -77,7 +77,13 @@ export class InMemoryIdempotency implements IdempotencyPort {
   }
 
   async fail(params: { organizationId: string; scope: string; key: string }): Promise<void> {
-    this.rows.delete(this.id(params));
+    const id = this.id(params);
+    const existing = this.rows.get(id);
+    // Only release in_progress claims. A completed claim MUST remain — a retry
+    // on a completed claim must replay (not re-execute) to prevent duplicates.
+    if (existing && existing.status !== 'completed') {
+      this.rows.delete(id);
+    }
   }
 }
 

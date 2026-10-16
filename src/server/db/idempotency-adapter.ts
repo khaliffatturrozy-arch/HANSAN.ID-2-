@@ -74,6 +74,11 @@ export class PrismaIdempotency implements IdempotencyPort {
   }
 
   async fail(params: KeyParts): Promise<void> {
-    await this.db.idempotencyRecord.delete({ where: this.where(params) }).catch(() => {});
+    const existing = await this.db.idempotencyRecord.findUnique({ where: this.where(params) });
+    // Only release in_progress claims. A completed claim MUST remain — a retry
+    // on a completed claim must replay (not re-execute) to prevent duplicates.
+    if (existing && existing.status !== 'completed') {
+      await this.db.idempotencyRecord.delete({ where: this.where(params) }).catch(() => {});
+    }
   }
 }
